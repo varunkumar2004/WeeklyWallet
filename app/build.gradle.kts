@@ -70,4 +70,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // biometrics
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 }
