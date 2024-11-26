@@ -7,7 +7,7 @@ import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.fragment.app.FragmentActivity
 
 class BiometricAuthentication(
-    private val context: Context
+    context: Context
 ) {
     private lateinit var promptInfo: PromptInfo
     private lateinit var biometricPrompt: BiometricPrompt

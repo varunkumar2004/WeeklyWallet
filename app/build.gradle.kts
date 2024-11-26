@@ -73,4 +73,7 @@ dependencies {
 
     // biometrics
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
+
+    // extended icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.5")
 }

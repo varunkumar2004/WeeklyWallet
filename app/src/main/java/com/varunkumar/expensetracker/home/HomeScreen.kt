@@ -11,13 +11,7 @@ import com.varunkumar.expensetracker.ui.components.ContainerView
 fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
-    ContainerView(
-        modifier = modifier
-    ) {
-        Column {
 
-        }
-    }
 }
 
 @Preview(showBackground = true)
