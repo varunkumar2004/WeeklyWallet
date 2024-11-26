@@ -33,6 +33,8 @@ fun BiometricsScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+
         Button(
             onClick = biometricRequestClick
         ) {

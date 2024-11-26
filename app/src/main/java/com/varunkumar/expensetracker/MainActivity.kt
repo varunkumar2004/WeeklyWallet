@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.varunkumar.expensetracker.biometrics.BiometricAuthentication
+import com.varunkumar.expensetracker.biometrics.BiometricUiState
 import com.varunkumar.expensetracker.biometrics.BiometricsScreen
 import com.varunkumar.expensetracker.biometrics.BiometricsViewModel
 import com.varunkumar.expensetracker.home.HomeScreen
@@ -32,13 +33,10 @@ class MainActivity : FragmentActivity() {
 
         setContent {
             val biometricViewModel = hiltViewModel<BiometricsViewModel>()
-            val biometricAuthenticator = BiometricAuthentication(this)
-            val activity = LocalContext.current as FragmentActivity
+            val biometricState by biometricViewModel.state.collectAsState()
             val navController = rememberNavController()
-            val selectedRoute by biometricViewModel.navRoute.collectAsStateWithLifecycle()
-
-            var biometricMessage by remember {
-                mutableStateOf("")
+            var selectedRoute by remember {
+                mutableStateOf<Routes>(Routes.Biometrics)
             }
 
             ExpenseTrackerTheme {
@@ -51,27 +49,23 @@ class MainActivity : FragmentActivity() {
                         startDestination = Routes.Biometrics.route
                     ) {
                         composable(Routes.Biometrics.route) {
+                            val activity = LocalContext.current as FragmentActivity
+
                             BiometricsScreen(
                                 modifier = Modifier.fillMaxSize(),
-                                message = biometricMessage,
-                                biometricRequestClick = {
-                                    biometricAuthenticator.promptBiometricAuth(
-                                        title = "Login",
-                                        subtitle = "Use your biometrics to login",
-                                        negativeButtonText = "Cancel",
-                                        fragmentActivity = activity,
-                                        onSuccess = {
-                                            navController.navigate("home") {
-                                                popUpTo("biometrics") { inclusive = true }
-                                            }
-                                        },
-                                        onFailed = {
-                                            biometricMessage = "Wrong fingerprint or face id"
-                                        },
-                                        onError = { _, error ->
-                                            biometricMessage = error
+                                message = when(biometricState.uiState) {
+                                    is BiometricUiState.Success -> {
+                                        navController.navigate(Routes.Home.route) {
+                                            popUpTo(Routes.Biometrics.route) { inclusive = true }
+                                            selectedRoute = Routes.Home
                                         }
-                                    )
+
+                                        "Success"
+                                    }
+                                    else -> biometricState.message
+                                },
+                                biometricRequestClick = {
+                                    biometricViewModel.biometricRequest(activity)
                                 }
                             )
                         }

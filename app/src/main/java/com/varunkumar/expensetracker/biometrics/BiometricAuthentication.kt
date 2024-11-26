@@ -23,7 +23,6 @@ class BiometricAuthentication(context: Context) {
 
     fun promptBiometricAuth(
         title: String,
-        subtitle: String,
         negativeButtonText: String,
         fragmentActivity: FragmentActivity,
         onSuccess: (result: BiometricPrompt.AuthenticationResult) -> Unit,
@@ -55,9 +54,8 @@ class BiometricAuthentication(context: Context) {
                     }
                 )
 
-                promptInfo = BiometricPrompt.PromptInfo.Builder()
+                promptInfo = PromptInfo.Builder()
                     .setTitle(title)
-                    .setSubtitle(subtitle)
                     .setNegativeButtonText(negativeButtonText)
                     .build()
 
