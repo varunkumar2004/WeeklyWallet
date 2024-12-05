@@ -90,6 +90,9 @@ dependencies {
 
     // YCharts
     implementation("co.yml:ycharts:2.1.0")
+
+    // Android datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
 
 kapt {

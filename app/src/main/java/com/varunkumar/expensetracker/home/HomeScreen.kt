@@ -11,54 +11,41 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBackIos
-import androidx.compose.material.icons.outlined.ArrowBackIosNew
-import androidx.compose.material.icons.outlined.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
-import co.yml.charts.ui.linechart.LineChart
-import co.yml.charts.ui.linechart.model.GridLines
 import co.yml.charts.ui.linechart.model.IntersectionPoint
 import co.yml.charts.ui.linechart.model.Line
 import co.yml.charts.ui.linechart.model.LineChartData
 import co.yml.charts.ui.linechart.model.LinePlotData
 import co.yml.charts.ui.linechart.model.LineStyle
-import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
-import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
-import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.varunkumar.expensetracker.home.components.DailyExpenseLimitAlert
 import com.varunkumar.expensetracker.home.components.ExpenseHistoryContainer
 
 @Composable
-fun ExpensesScreen(
+fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -91,21 +78,7 @@ fun PillExpenseContainer(
         contentColor = Color.Black
     )
 
-    val pointsData: List<Point> =
-        listOf(
-            Point(0f, 40f),
-            Point(1f, 90f),
-            Point(2f, 0f),
-            Point(3f, 60f),
-            Point(4f, 10f)
-        )
-
-    val xAxisData = AxisData.Builder()
-        .axisStepSize(150.dp)
-        .build()
-
-    val yAxisData = AxisData.Builder()
-        .build()
+    var showAlert by remember { mutableStateOf(false) }
 
     val expenses = listOf(
         100,
@@ -114,20 +87,13 @@ fun PillExpenseContainer(
         2340
     )
 
-    val lineChartData = LineChartData(
-        linePlotData = LinePlotData(
-            lines = listOf(
-                Line(
-                    dataPoints = pointsData,
-                    LineStyle(color = Color.White),
-                    IntersectionPoint(color = Color.Red)
-                )
-            ),
-        ),
-        xAxisData = xAxisData,
-        yAxisData = yAxisData,
-        backgroundColor = Color.Black
-    )
+    if (showAlert) {
+        DailyExpenseLimitAlert(
+            modifier = Modifier.fillMaxWidth(),
+            onDismissRequest = { showAlert = !showAlert },
+            onConfirm = { showAlert = !showAlert }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -151,7 +117,7 @@ fun PillExpenseContainer(
 
             FilledIconButton(
                 colors = filledIconButtonColors,
-                onClick = { /*TODO*/ }
+                onClick = { showAlert = true }
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Edit,
@@ -232,7 +198,7 @@ private fun PillExpenseAnimation(
 @Preview(showBackground = true)
 @Composable
 private fun HomePrev() {
-    ExpensesScreen(
+    HomeScreen(
         modifier = Modifier.fillMaxSize()
     )
 }

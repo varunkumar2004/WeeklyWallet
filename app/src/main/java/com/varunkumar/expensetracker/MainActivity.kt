@@ -19,7 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.varunkumar.expensetracker.biometrics.BiometricUiState
 import com.varunkumar.expensetracker.biometrics.BiometricsScreen
 import com.varunkumar.expensetracker.biometrics.BiometricsViewModel
-import com.varunkumar.expensetracker.home.ExpensesScreen
+import com.varunkumar.expensetracker.home.HomeScreen
 import com.varunkumar.expensetracker.ui.components.ContainerView
 import com.varunkumar.expensetracker.ui.components.Routes
 import com.varunkumar.expensetracker.ui.theme.ExpenseTrackerTheme
@@ -83,7 +83,7 @@ class MainActivity : FragmentActivity() {
                         }
 
                         composable(Routes.Home.route) {
-                            ExpensesScreen(
+                            HomeScreen(
                                 modifier = modifier.fillMaxSize()
                             )
                         }
