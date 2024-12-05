@@ -39,7 +39,7 @@ class BiometricsViewModel @Inject constructor(
 }
 
 data class BiometricState(
-    val uiState: BiometricUiState = BiometricUiState.Initial,
+    val uiState: BiometricUiState = BiometricUiState.Initial, // set to initial
     val message: String = ""
 )
 
