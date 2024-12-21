@@ -17,9 +17,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,18 +51,20 @@ import com.varunkumar.expensetracker.home.components.ExpenseHistoryContainer
 fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp
+
     Column(
-        modifier = modifier
-            .padding(horizontal = 16.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PillExpenseContainer(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.5f)
+                .weight(0.5f),
+            containerHeight = screenHeight / 2
         )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         ExpenseHistoryContainer(
             modifier = Modifier
@@ -71,11 +76,12 @@ fun HomeScreen(
 
 @Composable
 fun PillExpenseContainer(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerHeight: Int
 ) {
     val filledIconButtonColors = IconButtonDefaults.filledIconButtonColors(
-        containerColor = Color.LightGray,
-        contentColor = Color.Black
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.primaryContainer
     )
 
     var showAlert by remember { mutableStateOf(false) }
@@ -83,6 +89,9 @@ fun PillExpenseContainer(
     val expenses = listOf(
         100,
         200,
+        200,
+        200,
+        450,
         450,
         2340
     )
@@ -97,19 +106,18 @@ fun PillExpenseContainer(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .background(Color.Black),
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TextButton(
+            Button(
                 onClick = {}
             ) {
                 Text(text = "December")
@@ -131,25 +139,20 @@ fun PillExpenseContainer(
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 10.dp),
-            columns = GridCells.Fixed(4),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                .weight(1f),
+            columns = GridCells.Fixed(7),
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(expenses) { item ->
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .fillMaxHeight(1f)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Color.Green)
-                        .padding(2.dp)
+                        .background(Color.Red)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(40.dp))
-                            .height(item.dp)
-                            .background(Color.Red)
+                    Text(
+                        text = "1"
                     )
                 }
             }

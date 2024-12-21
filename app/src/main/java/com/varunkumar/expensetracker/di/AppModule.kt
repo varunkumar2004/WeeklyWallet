@@ -1,6 +1,7 @@
 package com.varunkumar.expensetracker.di
 
 import android.content.Context
+import androidx.datastore.preferences.preferencesDataStore
 import com.varunkumar.expensetracker.biometrics.BiometricAuthentication
 import dagger.Module
 import dagger.Provides

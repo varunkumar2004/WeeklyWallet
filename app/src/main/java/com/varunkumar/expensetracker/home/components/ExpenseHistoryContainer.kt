@@ -2,6 +2,7 @@ package com.varunkumar.expensetracker.home.components
 
 import android.hardware.lights.Light
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,15 +18,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalMovies
+import androidx.compose.material.icons.outlined.Fastfood
+import androidx.compose.material.icons.outlined.FoodBank
+import androidx.compose.material.icons.outlined.LocalMovies
+import androidx.compose.material.icons.outlined.Money
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,33 +63,14 @@ import co.yml.charts.ui.piechart.charts.PieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
 import com.google.ai.client.generativeai.type.content
+import com.varunkumar.expensetracker.data.CurrencyType
+import com.varunkumar.expensetracker.data.TransactionType
 import kotlin.math.min
 
 @Composable
 fun ExpenseHistoryContainer(
     modifier: Modifier = Modifier
 ) {
-    val expenses = listOf(
-        100,
-        200,
-        450,
-        2340
-    )
-
-    val pieChartData = PieChartData(
-        slices = listOf(
-            PieChartData.Slice("SciFi", 65f, Color(0xFF333333)),
-            PieChartData.Slice("Comedy", 35f, Color(0xFF666a86)),
-            PieChartData.Slice("Drama", 10f, Color(0xFF95B8D1)),
-            PieChartData.Slice("Romance", 40f, Color(0xFFF53844))
-        ), plotType = PlotType.Pie
-    )
-
-    val pieChartConfig = PieChartConfig(
-        isAnimationEnable = false,
-        showSliceLabels = true
-    )
-
     val expensesDescription = listOf(
         "2341234",
         "27340123",
@@ -84,150 +82,133 @@ fun ExpenseHistoryContainer(
 
     Column(
         modifier = modifier
+            .background(Color.White)
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
-//        PieChart(
-//            modifier = Modifier
-//                .size(200.dp),
-//            pieChartData = pieChartData,
-//            pieChartConfig = pieChartConfig
-//        )
-
-
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
-            verticalItemSpacing = 5.dp,
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(30.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            items(expensesDescription) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xffc1f7ad))
-                        .padding(10.dp)
-                ) {
-                    Row {
-                        Text(
-                            text = "-$it",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+            Text(
+                text = "Transactions",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleLarge
+            )
 
-                        Text(text = "₹")
-                    }
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "All")
+            }
+        }
 
-                    Text(
-                        style = MaterialTheme.typography.bodySmall,
-                        text = "2: 45 pm"
-                    )
-                }
-
-
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .background(Color(0xffc1f7ad))
-//                        .aspectRatio(1 / 1f),
-//                    contentAlignment = Alignment.TopEnd
-//                ) {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(40.dp)
-//                            .border(1.dp, Color.LightGray)
-//                    )
-//
-//
-//                    Column(
-//                        modifier = Modifier.fillMaxWidth()
-//                    ) {
-//                        Text(text = it)
-//                    }
-//                }
-
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .aspectRatio(1/1f)
-//                        .background(Color.Gray)
-//                        .drawWithContent {
-//                            val trianglePath = androidx.compose.ui.graphics.Path().apply {
-//                                // Define the triangle's vertices (adjust coordinates as needed)
-//                                moveTo(10.dp.toPx(), 10.dp.toPx())
-//                                lineTo(50.dp.toPx(), 50.dp.toPx())
-//                                lineTo(10.dp.toPx(), 90.dp.toPx())
-//                                close()
-//                            }
-//
-//                            // Clip the content using the triangle path
-//                            drawPath(trianglePath, color = Color.Red)
-//                        }
-//                ) {
-//
-//                }
-
-//                Box(
-//                    modifier = Modifier
-//                        .size(150.dp)
-//                        .background(Color.Gray, shape = RoundedCornerShape(8.dp))
-//                ) {
-//                    Canvas(modifier = Modifier.fillMaxWidth()) {
-//                        val trianglePath = androidx.compose.ui.graphics.Path().apply {
-//                            // Define the triangle coordinates for the cutout
-//                            moveTo(size.width, 0f) // Top-right corner
-//                            lineTo(size.width, size.height * 0.4f) // Mid-right
-//                            lineTo(size.width * 0.6f, 0f) // Mid-top
-//                            close()
-//                        }
-//
-//                        // Clip the triangle cutout
-//                        clipPath(trianglePath) {
-//                            drawRect(
-//                                color = Color.Gray, // Fill color
-//                                size = Size(size.width, size.height),
-////                                cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+        LazyColumn {
+            itemsIndexed(expensesDescription) { index, item ->
+                ListItem(
+                    colors = ListItemDefaults.colors(
+                        containerColor = Color.Transparent
+                    ),
+                    leadingContent = {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+//                            CurrencySymbol(
+//                                currencyType = CurrencyType.RUPEE
 //                            )
-//                        }
-//
-//                        // Optionally, draw the background color again to simulate a cutout effect
-//                        drawPath(
-//                            path = trianglePath,
-//                            color = Color.Red,
-//                            style = Fill
-//                        )
-//                    }
-//                }
 
-//                ElevatedCard(
-//                    modifier = Modifier,
-//                    colors = CardDefaults.elevatedCardColors(
-//                        containerColor = Color.Green
-//                    ),
-//                    shape = RoundedCornerShape(20.dp),
-//                    onClick = { /*TODO*/ }
+                            TransactionSymbol(
+                                transactionType = TransactionType.ENTERTAINMENT
+                            )
+                        }
+                    },
+                    supportingContent = {
+                        Text(
+                            text = "at 2:20PM",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    headlineContent = {
+                        Text(
+                            text = "Netflix",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    },
+                    trailingContent = {
+                        Text(
+                            text = item,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                )
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(vertical = 10.dp),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceBetween
 //                ) {
+//                    Column {
 //
 //
 //
-//                    Column(
-//                        modifier = Modifier
-//                            .padding(10.dp)
-//                    ) {
-//                        Text(text = it)
+//                    }
+//
+//                    Column {
+//
 //                    }
 //                }
             }
         }
-//
-//        LazyColumn(
-//            modifier = Modifier.clip(RoundedCornerShape(20.dp)),
-//            verticalArrangement = Arrangement.spacedBy(2.dp)
-//        ) {
-//            items(expensesDescription) {
-//                ExpenseHistoryItem(
-//                    modifier = Modifier,
-//                    history = it
-//                )
-//            }
-//        }
+    }
+}
+
+@Composable
+private fun CurrencySymbol(
+    currencyType: CurrencyType
+) {
+    Box(
+        modifier = Modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = when (currencyType) {
+                CurrencyType.RUPEE -> "₹"
+                CurrencyType.DOLLAR -> "₹"
+                CurrencyType.POUND -> "₹"
+            },
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+private fun TransactionSymbol(
+    transactionType: TransactionType
+) {
+    Box(
+        modifier = Modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            imageVector = when (transactionType) {
+                TransactionType.ENTERTAINMENT -> {
+                    Icons.Outlined.LocalMovies
+                }
+
+                TransactionType.FINANCE -> {
+                    Icons.Outlined.Money
+                }
+
+                TransactionType.FOOD -> {
+                    Icons.Outlined.FoodBank
+                }
+            },
+            contentDescription = null
+        )
     }
 }
