@@ -1,5 +1,5 @@
 package com.varunkumar.expensetracker.home
 
-interface HomeUiState {
+sealed interface HomeUiState {
     object Initial: HomeUiState
 }

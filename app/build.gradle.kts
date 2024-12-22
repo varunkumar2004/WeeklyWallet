@@ -15,6 +15,7 @@ android {
         applicationId = "com.varunkumar.expensetracker"
         minSdk = 30
         targetSdk = 34
+        multiDexEnabled = true
         versionCode = 1
         versionName = "1.0"
 
@@ -75,6 +76,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // compose runtime lifecycle
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
     // biometrics
@@ -93,6 +95,13 @@ dependencies {
 
     // Android datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Custom calendars
+    val calendar_version = "2.6.1"
+    implementation("com.kizitonwose.calendar:view:$calendar_version")
+    implementation("com.kizitonwose.calendar:compose:$calendar_version")
+
+    implementation("com.himanshoe:kalendar:1.3.2")
 }
 
 kapt {

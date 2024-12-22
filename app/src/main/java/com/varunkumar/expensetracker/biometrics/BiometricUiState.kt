@@ -1,7 +1,7 @@
 package com.varunkumar.expensetracker.biometrics
 
-interface BiometricUiState {
-    object Success : BiometricUiState
-    object Initial : BiometricUiState
-    object Error : BiometricUiState
+sealed interface BiometricUiState {
+    data object Success : BiometricUiState
+    data object Initial : BiometricUiState
+    data object Error : BiometricUiState
 }

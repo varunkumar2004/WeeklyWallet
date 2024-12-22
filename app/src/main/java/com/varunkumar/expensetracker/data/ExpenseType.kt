@@ -1,5 +1,5 @@
 package com.varunkumar.expensetracker.data
 
-enum class TransactionType {
+enum class ExpenseType {
     ENTERTAINMENT, FINANCE, FOOD
 }

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Wallet
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,17 +41,18 @@ fun ContainerView(
         topBar = {
             if (showScaffoldElements) {
                 CenterAlignedTopAppBar(
-//                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-//                        containerColor = Color.Black,
-//                        titleContentColor = Color.White
-//                    ),
-                    title = { Text(text = route.route.capitalize()) }
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        titleContentColor = MaterialTheme.colorScheme.tertiary
+                    ),
+                    title = { Text(text = route.route.capitalize(Locale.ROOT)) }
                 )
             }
         },
         bottomBar = {
             if (showScaffoldElements) {
-                NavigationBar {
+                NavigationBar(
+                    windowInsets = WindowInsets(bottom = 8.dp)
+                ) {
                     NavigationBarItem(
                         selected = route == Routes.Home,
                         onClick = { onIconRouteClick(Routes.Home) },
