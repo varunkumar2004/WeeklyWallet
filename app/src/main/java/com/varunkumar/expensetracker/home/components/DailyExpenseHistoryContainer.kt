@@ -1,6 +1,5 @@
 package com.varunkumar.expensetracker.home.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,17 +11,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AllInclusive
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocalMovies
 import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +52,21 @@ fun DailyExpenseHistoryContainer(
         "2341234",
         "27340123"
     )
+
+    val expenseTypes = listOf(
+        ExpenseType.ALL,
+        ExpenseType.FOOD,
+        ExpenseType.ENTERTAINMENT,
+        ExpenseType.FINANCE
+    )
+
+    var selectedExpenseType by remember {
+        mutableStateOf(expenseTypes[0])
+    }
+
+    var isDropDownMenuOpen by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = modifier
@@ -79,15 +100,41 @@ fun DailyExpenseHistoryContainer(
                     )
 
                     Text(
-                        text = homeState.selectedDay.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                        text = homeState.selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
 
-            Button(onClick = { /*TODO*/ }) {
-                Text(text = "All")
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = { isDropDownMenuOpen = true }
+                ) {
+                    Text(text = selectedExpenseType.name)
+                }
+
+                DropdownMenu(
+                    expanded = isDropDownMenuOpen,
+                    onDismissRequest = {
+                        isDropDownMenuOpen = false
+                    }
+                ) {
+                    expenseTypes.forEach { expenseType ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = expenseType.name)
+                            },
+                            onClick = {
+                                selectedExpenseType = expenseType
+                                isDropDownMenuOpen = false
+                            }
+                        )
+                    }
+                }
             }
         }
 
@@ -163,9 +210,13 @@ fun TransactionSymbol(
 ) {
     Icon(
         imageVector = when (transactionType) {
-            ExpenseType.ENTERTAINMENT -> { Icons.Outlined.LocalMovies }
-            ExpenseType.FINANCE -> { Icons.Outlined.Money }
-            ExpenseType.FOOD -> { Icons.Outlined.FoodBank }
+            ExpenseType.ENTERTAINMENT -> Icons.Outlined.LocalMovies
+
+            ExpenseType.FINANCE -> Icons.Outlined.Money
+
+            ExpenseType.FOOD -> Icons.Outlined.FoodBank
+
+            ExpenseType.ALL -> Icons.Outlined.AllInclusive
         },
         tint = MaterialTheme.colorScheme.tertiary,
         contentDescription = null

@@ -37,8 +37,6 @@ class MainActivity : FragmentActivity() {
 
         enableEdgeToEdge()
 
-//        val Context.dataStore : DataStore<Preferences> by preferencesDataStore("expense_preferences")
-
         // TODO implement notifications permission request
 
         setContent {

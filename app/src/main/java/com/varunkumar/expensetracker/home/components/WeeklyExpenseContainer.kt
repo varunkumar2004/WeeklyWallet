@@ -1,16 +1,12 @@
 package com.varunkumar.expensetracker.home.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,10 +17,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForwardIos
+import androidx.compose.material.icons.outlined.RunningWithErrors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,24 +76,51 @@ fun WeeklyExpenseContainer(
     Column(
         modifier = modifier
     ) {
-        TextButton(
-            modifier = Modifier.padding(start = 16.dp),
-            onClick = { /*TODO*/ }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                verticalAlignment = Alignment.CenterVertically
+            TextButton(
+                onClick = { /*TODO*/ }
             ) {
-                Text(
-                    style = MaterialTheme.typography.bodyLarge,
-                    text = currentDate.month.name.lowercase().capitalize()
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        style = MaterialTheme.typography.bodyLarge,
+                        text = currentDate.month.name.lowercase().capitalize()
+                    )
 
-                Icon(
-                    modifier = Modifier.size(12.dp),
-                    imageVector = Icons.Outlined.ArrowForwardIos,
-                    contentDescription = null
-                )
+                    Icon(
+                        modifier = Modifier.size(12.dp),
+                        imageVector = Icons.Outlined.ArrowForwardIos,
+                        contentDescription = null
+                    )
+                }
+            }
+
+            TextButton(
+                onClick = { /*TODO*/ }
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier.size(15.dp),
+                        imageVector = Icons.Outlined.RunningWithErrors,
+                        contentDescription = null
+                    )
+
+                    Text(
+                        style = MaterialTheme.typography.bodyLarge,
+                        text = homeState.dailyLimit.toString()
+                    )
+                }
             }
         }
 
@@ -108,7 +131,7 @@ fun WeeklyExpenseContainer(
             userScrollEnabled = true,
             contentPadding = PaddingValues(horizontal = 16.dp),
             dayContent = { weekDay ->
-                val isSelected = homeState.selectedDay == weekDay.date
+                val isSelected = homeState.selectedDate == weekDay.date
                 val itemColors =
                     if (isSelected) selectedDailyExpenseItem() else unSelectedDailyExpenseItem()
 
@@ -123,7 +146,7 @@ fun WeeklyExpenseContainer(
                     targetState = itemColors,
                     transitionSpec = {
                         fadeIn(animationSpec = tween(durationMillis = 500)) with
-                        fadeOut(animationSpec = tween(durationMillis = 500))
+                                fadeOut(animationSpec = tween(durationMillis = 500))
                     },
                     label = "Colors Animation"
                 ) { colors ->

@@ -6,6 +6,7 @@ import java.time.LocalDate
 
 data class HomeState(
     val uiState: UiState = UiState.Initial,
-    val selectedDay: LocalDate = LocalDate.now(),
-    val dailyExpenses: List<Expense> = emptyList()
+    val dailyLimit: Int? = null,
+    val selectedDate: LocalDate = LocalDate.now(),
+    val dateSpecificExpenses: List<Expense> = emptyList()
 )
