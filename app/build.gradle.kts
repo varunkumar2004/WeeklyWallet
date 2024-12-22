@@ -75,6 +75,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // system ui tools
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
+
     // compose runtime lifecycle
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
@@ -102,6 +105,12 @@ dependencies {
     implementation("com.kizitonwose.calendar:compose:$calendar_version")
 
     implementation("com.himanshoe:kalendar:1.3.2")
+
+    // room database
+    val room_version = "2.6.1"
+    kapt("androidx.room:room-compiler:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 }
 
 kapt {

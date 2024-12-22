@@ -24,16 +24,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun DailyExpenseLimitAlert(
     modifier: Modifier = Modifier,
+    dailyLimit: Int,
     onDismissRequest: () -> Unit,
-    onConfirm: () -> Unit
+    onDailyLimitChange: (Int) -> Unit
 ) {
-    var text by remember { mutableStateOf(TextFieldValue("")) }
+    var text by remember { mutableIntStateOf(dailyLimit) }
 
     AlertDialog(
         modifier = modifier,
@@ -44,18 +47,25 @@ fun DailyExpenseLimitAlert(
             OutlinedTextField(
                 modifier = modifier,
                 placeholder = { Text(text = "Enter limit") },
-                value = text,
+                value = text.toString(),
+                textStyle = TextStyle(
+                    fontSize = 20.sp
+                ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = { newText ->
-                    if (newText.text.all { it.isDigit() } || newText.text.isEmpty()) {
-                        text = newText
+                    if (newText.all { it.isDigit() } && newText.isNotEmpty()) {
+                        text = newText.toInt()
+                    }
+
+                    if (newText.isEmpty()) {
+                        text = 0
                     }
                 }
             )
         },
         onDismissRequest = onDismissRequest,
         confirmButton = {
-            Button(onClick = onConfirm) {
+            Button(onClick = { onDailyLimitChange(text) }) {
                 Text(text = "Confirm")
             }
         }

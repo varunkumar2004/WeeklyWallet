@@ -20,6 +20,7 @@ fun HomeScreen(
 ) {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state by homeViewModel.state.collectAsStateWithLifecycle()
+    val showDailyLimitAlert by homeViewModel.isDailyLimitAlertOpen.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier,
@@ -32,7 +33,11 @@ fun HomeScreen(
         WeeklyExpenseContainer(
             modifier = weightModifier,
             homeState = state,
-            onDayClick = homeViewModel::selectDayItem
+            showDailyLimitAlert = showDailyLimitAlert,
+            onDismissRequest = homeViewModel::closeDailyLimitAlert,
+            onDailyLimitTextButtonClick = homeViewModel::openDailyLimitAlert,
+            onDayClick = homeViewModel::selectDayItem,
+            onDailyLimitChange = homeViewModel::updateDailyLimit
         )
 
         DailyExpenseHistoryContainer(

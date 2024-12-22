@@ -1,5 +1,6 @@
 package com.varunkumar.expensetracker.home.components
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -26,10 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,34 +39,41 @@ import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.kizitonwose.calendar.core.WeekDay
 import com.varunkumar.expensetracker.home.HomeState
 import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun WeeklyExpenseContainer(
     modifier: Modifier = Modifier,
     homeState: HomeState,
-    onDayClick: (LocalDate) -> Unit
+    showDailyLimitAlert: Boolean,
+    onDailyLimitTextButtonClick: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onDayClick: (LocalDate) -> Unit,
+    onDailyLimitChange: (Int) -> Unit
 ) {
     val currentDate = LocalDate.now()
-    val expense = 700f
-    val lastDateOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth())
 
-    var showAlert by remember { mutableStateOf(false) }
+    val totalExpense = if (homeState.dateSpecificExpenses.isNotEmpty())
+        homeState.dateSpecificExpenses.sumOf { it.amount }.toFloat()
+    else 0f
+
     val calendarState = rememberWeekCalendarState(
         startDate = LocalDate.of(currentDate.year, currentDate.month, 1),
-        endDate = LocalDate.of(
-            currentDate.year,
-            currentDate.month,
-            currentDate.dayOfMonth
-        ),
+//        endDate = LocalDate.of(
+//            currentDate.year,
+//            currentDate.month,
+//            18
+//        ),
     )
 
-    if (showAlert) {
+    Log.d("localDate time", "WeeklyExpenseContainer: ${currentDate.dayOfMonth}")
+
+    if (showDailyLimitAlert) {
         DailyExpenseLimitAlert(
             modifier = Modifier.fillMaxWidth(),
-            onDismissRequest = { showAlert = !showAlert },
-            onConfirm = { showAlert = !showAlert }
+            dailyLimit = homeState.dailyLimit,
+            onDismissRequest = onDismissRequest,
+            onDailyLimitChange = onDailyLimitChange
         )
     }
 
@@ -104,7 +108,7 @@ fun WeeklyExpenseContainer(
             }
 
             TextButton(
-                onClick = { /*TODO*/ }
+                onClick = onDailyLimitTextButtonClick
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -125,8 +129,7 @@ fun WeeklyExpenseContainer(
         }
 
         WeekCalendar(
-            modifier = modifier
-                .fillMaxHeight(),
+            modifier = modifier.fillMaxHeight(),
             state = calendarState,
             userScrollEnabled = true,
             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -142,6 +145,11 @@ fun WeeklyExpenseContainer(
                     .background(itemColors.backgroundColor)
                     .clickable { onDayClick(weekDay.date) }
 
+                val dailySum = homeState.dailySumExpenses
+                    .filter { it.dayOfMonth == weekDay.date.dayOfMonth }
+
+                val totalDailySum = dailySum.sumOf { it.totalAmount }.toFloat()
+
                 AnimatedContent(
                     targetState = itemColors,
                     transitionSpec = {
@@ -154,7 +162,9 @@ fun WeeklyExpenseContainer(
                         modifier = expenseContainerModifier,
                         weekDay = weekDay,
                         itemColor = colors,
-                        expense = expense
+                        expense = if (isSelected) totalExpense
+                        else totalDailySum,
+                        dailyLimit = homeState.dailyLimit
                     )
                 }
             }
@@ -167,29 +177,36 @@ fun DailyExpenseItem(
     modifier: Modifier = Modifier,
     itemColor: DailyExpenseItemColor,
     weekDay: WeekDay,
-    expense: Float
+    expense: Float,
+    dailyLimit: Int
 ) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.BottomCenter
     ) {
+        val expenseHeight = (expense / dailyLimit.toFloat())
+
         Text(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 10.dp)
+                .padding(top = 16.dp)
                 .zIndex(100f),
             textAlign = TextAlign.Center,
-            color = itemColor.dayColor,
+            color = if (expenseHeight > 0.05f)
+                itemColor.dayColor else
+                MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodySmall,
             text = weekDay.date.dayOfMonth.toString()
         )
 
-        val expenseHeight = (expense / 1000.0).toFloat()
         val expenseModifier = Modifier
             .fillMaxHeight(expenseHeight)
             .fillMaxWidth()
             .clip(RoundedCornerShape(50.dp))
-            .background(itemColor.expenseItemColor)
+            .background(
+                if (expenseHeight >= 1f) MaterialTheme.colorScheme.error
+                else itemColor.expenseItemColor
+            )
 
         Box(
             modifier = expenseModifier
@@ -207,7 +224,7 @@ data class DailyExpenseItemColor(
 fun selectedDailyExpenseItem(): DailyExpenseItemColor {
     return DailyExpenseItemColor(
         backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-        dayColor = MaterialTheme.colorScheme.tertiary, // take care of the contrast of background
+        dayColor = MaterialTheme.colorScheme.primary, // take care of the contrast of background,
         expenseItemColor = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
@@ -216,7 +233,7 @@ fun selectedDailyExpenseItem(): DailyExpenseItemColor {
 fun unSelectedDailyExpenseItem(): DailyExpenseItemColor {
     return DailyExpenseItemColor(
         backgroundColor = MaterialTheme.colorScheme.onPrimary,
-        dayColor = MaterialTheme.colorScheme.tertiary,
+        dayColor = MaterialTheme.colorScheme.onTertiaryContainer,
         expenseItemColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
     )
 }

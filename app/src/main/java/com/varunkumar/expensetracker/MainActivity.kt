@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -20,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.varunkumar.expensetracker.biometrics.BiometricUiState
 import com.varunkumar.expensetracker.biometrics.BiometricsScreen
 import com.varunkumar.expensetracker.biometrics.BiometricsViewModel
@@ -40,6 +43,16 @@ class MainActivity : FragmentActivity() {
         // TODO implement notifications permission request
 
         setContent {
+            val systemUiController = rememberSystemUiController()
+
+            // always make status bar transparent and icons dark
+            SideEffect {
+                systemUiController.setSystemBarsColor(
+                    color = Color.Transparent,
+                    darkIcons = true
+                )
+            }
+
             val biometricViewModel = hiltViewModel<BiometricsViewModel>()
             val biometricState by biometricViewModel.state.collectAsState()
             val navController = rememberNavController()

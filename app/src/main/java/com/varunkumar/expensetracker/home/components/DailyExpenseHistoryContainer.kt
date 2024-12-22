@@ -1,5 +1,6 @@
 package com.varunkumar.expensetracker.home.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AllInclusive
+import androidx.compose.material.icons.outlined.CurrencyRupee
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocalMovies
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.outlined.Money
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -44,15 +48,6 @@ fun DailyExpenseHistoryContainer(
     modifier: Modifier = Modifier,
     homeState: HomeState
 ) {
-    val expensesDescription = listOf(
-        "2341234",
-        "27340123",
-        "2341234",
-        "27340123",
-        "2341234",
-        "27340123"
-    )
-
     val expenseTypes = listOf(
         ExpenseType.ALL,
         ExpenseType.FOOD,
@@ -111,10 +106,12 @@ fun DailyExpenseHistoryContainer(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Button(
-                    onClick = { isDropDownMenuOpen = true }
-                ) {
-                    Text(text = selectedExpenseType.name)
+                AnimatedContent(targetState = selectedExpenseType) {
+                    Button(
+                        onClick = { isDropDownMenuOpen = true }
+                    ) {
+                        Text(text = it.name)
+                    }
                 }
 
                 DropdownMenu(
@@ -138,48 +135,65 @@ fun DailyExpenseHistoryContainer(
             }
         }
 
-        LazyColumn {
-            itemsIndexed(expensesDescription) { index, item ->
-                ListItem(
-                    colors = ListItemDefaults.colors(
-                        containerColor = Color.Transparent
-                    ),
-                    leadingContent = {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-//                            CurrencySymbol(
-//                                currencyType = CurrencyType.RUPEE
-//                            )
-
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (homeState.dateSpecificExpenses.isEmpty()) {
+                item {
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp),
+                        text = "No expenses today.",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                itemsIndexed(homeState.dateSpecificExpenses) { index, item ->
+                    ListItem(
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Transparent
+                        ),
+                        leadingContent = {
                             TransactionSymbol(
                                 transactionType = ExpenseType.ENTERTAINMENT
                             )
+                        },
+                        supportingContent = {
+                            Text(
+                                text = "at 2:20PM",
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        },
+                        headlineContent = {
+                            Text(
+                                text = "Netflix",
+                                color = MaterialTheme.colorScheme.tertiary,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
+                        trailingContent = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                    imageVector = Icons.Outlined.CurrencyRupee,
+                                    contentDescription = null
+                                )
+
+                                Text(
+                                    text = item.amount.toString(),
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
-                    },
-                    supportingContent = {
-                        Text(
-                            text = "at 2:20PM",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    },
-                    headlineContent = {
-                        Text(
-                            text = "Netflix",
-                            color = MaterialTheme.colorScheme.tertiary,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    trailingContent = {
-                        Text(
-                            text = item,
-                            color = MaterialTheme.colorScheme.secondary,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -217,6 +231,8 @@ fun TransactionSymbol(
             ExpenseType.FOOD -> Icons.Outlined.FoodBank
 
             ExpenseType.ALL -> Icons.Outlined.AllInclusive
+
+            else -> Icons.Outlined.AllInclusive
         },
         tint = MaterialTheme.colorScheme.tertiary,
         contentDescription = null
