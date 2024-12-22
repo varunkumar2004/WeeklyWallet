@@ -59,11 +59,11 @@ fun WeeklyExpenseContainer(
 
     val calendarState = rememberWeekCalendarState(
         startDate = LocalDate.of(currentDate.year, currentDate.month, 1),
-//        endDate = LocalDate.of(
-//            currentDate.year,
-//            currentDate.month,
-//            18
-//        ),
+        endDate = LocalDate.of(
+            currentDate.year,
+            currentDate.month,
+            currentDate.dayOfMonth
+        ),
     )
 
     Log.d("localDate time", "WeeklyExpenseContainer: ${currentDate.dayOfMonth}")
@@ -150,23 +150,14 @@ fun WeeklyExpenseContainer(
 
                 val totalDailySum = dailySum.sumOf { it.totalAmount }.toFloat()
 
-                AnimatedContent(
-                    targetState = itemColors,
-                    transitionSpec = {
-                        fadeIn(animationSpec = tween(durationMillis = 500)) with
-                                fadeOut(animationSpec = tween(durationMillis = 500))
-                    },
-                    label = "Colors Animation"
-                ) { colors ->
-                    DailyExpenseItem(
-                        modifier = expenseContainerModifier,
-                        weekDay = weekDay,
-                        itemColor = colors,
-                        expense = if (isSelected) totalExpense
-                        else totalDailySum,
-                        dailyLimit = homeState.dailyLimit
-                    )
-                }
+                DailyExpenseItem(
+                    modifier = expenseContainerModifier,
+                    weekDay = weekDay,
+                    itemColor = itemColors,
+                    expense = if (isSelected) totalExpense
+                    else totalDailySum,
+                    dailyLimit = homeState.dailyLimit
+                )
             }
         )
     }

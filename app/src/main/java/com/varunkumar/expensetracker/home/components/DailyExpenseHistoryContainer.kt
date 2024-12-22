@@ -1,6 +1,7 @@
 package com.varunkumar.expensetracker.home.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.varunkumar.expensetracker.data.CurrencyType
 import com.varunkumar.expensetracker.data.ExpenseType
 import com.varunkumar.expensetracker.home.HomeState
+import com.varunkumar.expensetracker.ui.components.extractTimeFromLong
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -106,7 +108,7 @@ fun DailyExpenseHistoryContainer(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                AnimatedContent(targetState = selectedExpenseType) {
+                AnimatedContent(targetState = selectedExpenseType, label = "") {
                     Button(
                         onClick = { isDropDownMenuOpen = true }
                     ) {
@@ -150,26 +152,26 @@ fun DailyExpenseHistoryContainer(
                     )
                 }
             } else {
-                itemsIndexed(homeState.dateSpecificExpenses) { index, item ->
+                itemsIndexed(homeState.dateSpecificExpenses) { index, it ->
                     ListItem(
                         colors = ListItemDefaults.colors(
                             containerColor = Color.Transparent
                         ),
                         leadingContent = {
                             TransactionSymbol(
-                                transactionType = ExpenseType.ENTERTAINMENT
+                                transactionType = it.expenseType
                             )
                         },
                         supportingContent = {
                             Text(
-                                text = "at 2:20PM",
+                                text = extractTimeFromLong(it.time),
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.bodySmall
                             )
                         },
                         headlineContent = {
                             Text(
-                                text = "Netflix",
+                                text = it.name,
                                 color = MaterialTheme.colorScheme.tertiary,
                                 style = MaterialTheme.typography.bodyLarge
                             )
@@ -186,7 +188,7 @@ fun DailyExpenseHistoryContainer(
                                 )
 
                                 Text(
-                                    text = item.amount.toString(),
+                                    text = it.amount.toString(),
                                     color = MaterialTheme.colorScheme.secondary,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
