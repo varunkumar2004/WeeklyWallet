@@ -1,9 +1,11 @@
 package com.varunkumar.expensetracker.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +15,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,8 +73,12 @@ fun HomeScreen(
 
     if (showCalendarAlert) {
         CalendarAlert(
-            modifier = Modifier.fillMaxWidth(),
-            onDismissRequest = homeViewModel::closeDailyLimitAlert
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White),
+            homeState = state,
+            onDismissRequest = homeViewModel::closeCalenderAlert
         )
     }
 
@@ -85,7 +93,7 @@ fun HomeScreen(
         WeeklyExpenseContainer(
             modifier = weightModifier,
             homeState = state,
-            onCalendarTextButtonClick = homeViewModel::openDailyLimitAlert,
+            onCalendarTextButtonClick = homeViewModel::openCalendarAlert,
             onDailyLimitTextButtonClick = homeViewModel::openDailyLimitAlert,
             onDayClick = homeViewModel::selectDayItem
         )

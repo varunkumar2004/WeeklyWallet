@@ -61,6 +61,8 @@ fun DailyExpenseHistoryContainer(
     homeState: HomeState,
     openAddExpenseSheet: () -> Unit
 ) {
+    val totalAmount = homeState.dateSpecificExpenses.sumOf { it.amount }
+
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
@@ -119,10 +121,12 @@ fun DailyExpenseHistoryContainer(
 
             item {
                 Text(
-                    modifier = Modifier.padding(vertical = 10.dp),
+                    modifier = Modifier.padding(bottom = 20.dp),
                     fontWeight = FontWeight.SemiBold,
-                    text = "Total Expense: ${homeState.dateSpecificExpenses.sumOf { it.amount }}",
-                    color = MaterialTheme.colorScheme.secondary,
+                    text = "Total Expense: $totalAmount",
+                    color =
+                    if (totalAmount < homeState.dailyLimit) MaterialTheme.colorScheme.secondary
+                    else MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
