@@ -2,18 +2,21 @@ package com.varunkumar.expensetracker.home.components
 
 import android.widget.PopupMenu.OnDismissListener
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,36 +39,55 @@ fun DailyExpenseLimitAlert(
     onDismissRequest: () -> Unit,
     onDailyLimitChange: (Int) -> Unit
 ) {
-    var text by remember { mutableIntStateOf(dailyLimit) }
+    var text by remember { mutableStateOf(dailyLimit.toString()) }
 
     AlertDialog(
         modifier = modifier,
         title = {
-            Text(text = "Daily Limit")
+            Text(
+                text = "Daily Limit",
+                color = MaterialTheme.colorScheme.primary
+            )
         },
         text = {
-            OutlinedTextField(
-                modifier = modifier,
-                placeholder = { Text(text = "Enter limit") },
-                value = text.toString(),
-                textStyle = TextStyle(
-                    fontSize = 20.sp
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                onValueChange = { newText ->
-                    if (newText.all { it.isDigit() } && newText.isNotEmpty()) {
-                        text = newText.toInt()
+            Column {
+                OutlinedTextField(
+                    modifier = modifier,
+                    placeholder = { Text(text = "Enter limit") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.CurrencyRupee,
+                            contentDescription = null
+                        )
+                    },
+                    value = text,
+                    textStyle = TextStyle(
+                        fontSize = 20.sp
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    onValueChange = { newText ->
+                        if (newText.all { it.isDigit() } && newText.isNotEmpty()) {
+                            text = newText
+                        }
+                        if (newText.isEmpty()) {
+                            text = ""
+                        }
                     }
+                )
 
-                    if (newText.isEmpty()) {
-                        text = 0
-                    }
-                }
-            )
+//                Text(text = "")
+            }
         },
         onDismissRequest = onDismissRequest,
         confirmButton = {
-            Button(onClick = { onDailyLimitChange(text) }) {
+            Button(
+                onClick = {
+                    onDailyLimitChange(
+                        if (text.isEmpty()) 0
+                        else text.toInt()
+                    )
+                }
+            ) {
                 Text(text = "Confirm")
             }
         }

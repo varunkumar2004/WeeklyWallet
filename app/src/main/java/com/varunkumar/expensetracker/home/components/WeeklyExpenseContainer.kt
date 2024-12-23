@@ -34,22 +34,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.WeekCalendar
 import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.kizitonwose.calendar.core.WeekDay
 import com.varunkumar.expensetracker.home.HomeState
 import java.time.LocalDate
+import java.util.Locale
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun WeeklyExpenseContainer(
     modifier: Modifier = Modifier,
     homeState: HomeState,
-    showDailyLimitAlert: Boolean,
+    onCalendarTextButtonClick: () -> Unit,
     onDailyLimitTextButtonClick: () -> Unit,
-    onDismissRequest: () -> Unit,
-    onDayClick: (LocalDate) -> Unit,
-    onDailyLimitChange: (Int) -> Unit
+    onDayClick: (LocalDate) -> Unit
 ) {
     val currentDate = LocalDate.now()
 
@@ -66,17 +66,6 @@ fun WeeklyExpenseContainer(
         ),
     )
 
-    Log.d("localDate time", "WeeklyExpenseContainer: ${currentDate.dayOfMonth}")
-
-    if (showDailyLimitAlert) {
-        DailyExpenseLimitAlert(
-            modifier = Modifier.fillMaxWidth(),
-            dailyLimit = homeState.dailyLimit,
-            onDismissRequest = onDismissRequest,
-            onDailyLimitChange = onDailyLimitChange
-        )
-    }
-
     Column(
         modifier = modifier
     ) {
@@ -88,7 +77,7 @@ fun WeeklyExpenseContainer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = { /*TODO*/ }
+                onClick = onCalendarTextButtonClick
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -96,7 +85,7 @@ fun WeeklyExpenseContainer(
                 ) {
                     Text(
                         style = MaterialTheme.typography.bodyLarge,
-                        text = currentDate.month.name.lowercase().capitalize()
+                        text = currentDate.month.name.lowercase().capitalize(Locale.ROOT)
                     )
 
                     Icon(
@@ -183,9 +172,9 @@ fun DailyExpenseItem(
                 .padding(top = 16.dp)
                 .zIndex(100f),
             textAlign = TextAlign.Center,
-            color = if (expenseHeight > 0.05f)
+            color = if (expenseHeight < 1f)
                 itemColor.dayColor else
-                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.bodySmall,
             text = weekDay.date.dayOfMonth.toString()
         )

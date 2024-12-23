@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.varunkumar.expensetracker.DataStoreRepository
+import com.varunkumar.expensetracker.UiState
 import com.varunkumar.expensetracker.data.Expense
 import com.varunkumar.expensetracker.data.dao.ExpenseDao
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,12 +57,34 @@ class HomeViewModel @Inject constructor(
     var isDailyLimitAlertOpen = MutableStateFlow(false)
         private set
 
+    var isBottomDrawerOpen = MutableStateFlow(false)
+        private set
+
+    var isCalendarAlertOpen = MutableStateFlow(false)
+        private set
+
     fun openDailyLimitAlert() {
         isDailyLimitAlertOpen.update { true }
     }
 
+    fun openCalendarAlert() {
+        isCalendarAlertOpen.update { true }
+    }
+
+    fun openBottomSheet() {
+        isBottomDrawerOpen.update { true }
+    }
+
     fun closeDailyLimitAlert() {
         isDailyLimitAlertOpen.update { false }
+    }
+
+    fun closeCalenderAlert() {
+        isCalendarAlertOpen.update { false }
+    }
+
+    fun closeBottomSheet() {
+        isBottomDrawerOpen.update { false }
     }
 
     fun selectDayItem(newDate: LocalDate) {
@@ -81,28 +104,51 @@ class HomeViewModel @Inject constructor(
     // room database operations
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
-            expenseDao.insertExpense(expense)
+            _state.update { it.copy(uiState = UiState.Loading) }
+
+            try {
+                expenseDao.insertExpense(expense)
+
+                _state.update {
+                    it.copy(
+                        uiState = UiState.Success(
+                            "expense of amount: ${expense.amount} added"
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        uiState = UiState.Error(
+                            e.localizedMessage ?: "Some Error Occurred"
+                        )
+                    )
+                }
+            }
         }
     }
 
     fun deleteExpense(expense: Expense) {
         viewModelScope.launch {
-            expenseDao.deleteExpense(expense)
-        }
-    }
+            try {
+                expenseDao.deleteExpense(expense)
 
-    fun getExpensesForDay(
-        localDate: LocalDate
-    ) {
-        viewModelScope.launch {
-            val expenses = expenseDao.getExpensesForDay(
-                localDate.year,
-                localDate.monthValue,
-                localDate.dayOfMonth
-            )
-
-            _state.update { it.copy(dateSpecificExpenses = expenses) }
-            Log.d("expenses list", _state.toString())
+                _state.update {
+                    it.copy(
+                        uiState = UiState.Success(
+                            "expense of amount: ${expense.name} deleted"
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        uiState = UiState.Error(
+                            e.localizedMessage ?: "Some Error Occurred"
+                        )
+                    )
+                }
+            }
         }
     }
 }
