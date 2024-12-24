@@ -4,14 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.varunkumar.expensetracker.data.Expense
-import com.varunkumar.expensetracker.home.components.AddExpenseSheet
-import com.varunkumar.expensetracker.home.components.CalendarAlert
+import com.varunkumar.expensetracker.home.components.AddExpenseAlert
 import com.varunkumar.expensetracker.home.components.DailyExpenseHistoryContainer
 import com.varunkumar.expensetracker.home.components.DailyExpenseLimitAlert
 import com.varunkumar.expensetracker.home.components.WeeklyExpenseContainer
@@ -36,31 +30,7 @@ fun HomeScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val state by homeViewModel.state.collectAsStateWithLifecycle()
     val showDailyLimitAlert by homeViewModel.isDailyLimitAlertOpen.collectAsStateWithLifecycle()
-    val showCalendarAlert by homeViewModel.isCalendarAlertOpen.collectAsStateWithLifecycle()
-    val showBottomDrawer by homeViewModel.isBottomDrawerOpen.collectAsStateWithLifecycle()
-
-    if (showBottomDrawer) {
-        ModalBottomSheet(
-            onDismissRequest = homeViewModel::closeBottomSheet
-        ) {
-            AddExpenseSheet(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 20.dp),
-                onConfirmClick = { expenseName, expenseAmount, expenseType ->
-                    val newExpense = Expense(
-                        name = expenseName,
-                        amount = expenseAmount,
-                        expenseType = expenseType
-                    )
-
-                    homeViewModel.addExpense(newExpense)
-                    homeViewModel.closeBottomSheet()
-                }
-            )
-        }
-    }
+    val showAddExpenseAlert by homeViewModel.isAddExpenseAlertOpen.collectAsStateWithLifecycle()
 
     if (showDailyLimitAlert) {
         DailyExpenseLimitAlert(
@@ -71,14 +41,22 @@ fun HomeScreen(
         )
     }
 
-    if (showCalendarAlert) {
-        CalendarAlert(
+    if (showAddExpenseAlert) {
+        AddExpenseAlert(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color.White),
-            homeState = state,
-            onDismissRequest = homeViewModel::closeCalenderAlert
+            onConfirmClick = { expenseName, expenseAmount, expenseType ->
+                val newExpense = Expense(
+                    name = expenseName,
+                    amount = expenseAmount,
+                    expenseType = expenseType
+                )
+
+                homeViewModel.addExpense(newExpense)
+                homeViewModel.closeBottomSheet()
+            }
         )
     }
 
@@ -93,7 +71,6 @@ fun HomeScreen(
         WeeklyExpenseContainer(
             modifier = weightModifier,
             homeState = state,
-            onCalendarTextButtonClick = homeViewModel::openCalendarAlert,
             onDailyLimitTextButtonClick = homeViewModel::openDailyLimitAlert,
             onDayClick = homeViewModel::selectDayItem
         )
@@ -101,7 +78,8 @@ fun HomeScreen(
         DailyExpenseHistoryContainer(
             modifier = weightModifier,
             homeState = state,
-            openAddExpenseSheet = homeViewModel::openBottomSheet
+            openAddExpenseSheet = homeViewModel::openBottomSheet,
+            onDeleteIconButtonClick = homeViewModel::deleteExpense
         )
     }
 }

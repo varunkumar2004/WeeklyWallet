@@ -16,13 +16,4 @@ interface ExpenseDao {
 
     @Query("SELECT dayOfMonth, SUM(amount) AS totalAmount FROM EXPENSES GROUP BY dayOfMonth HAVING year = :year AND monthOfYear = :month ORDER BY dayOfMonth ASC")
     suspend fun getExpensesSumForMonth(year: Int, month: Int): List<DailyExpenseSum>
-//
-//    @Query("SELECT * FROM expenses WHERE year = :year AND monthOfYear = :month ORDER BY dayOfMonth ASC, time ASC")
-//    suspend fun getExpensesForMonth(year: Int, month: Int): List<Expense>
-//
-//    @Query("SELECT * FROM expenses WHERE year = :year ORDER BY monthOfYear ASC, dayOfMonth ASC, time ASC")
-//    suspend fun getExpensesForYear(year: Int): List<Expense>
-//
-//    @Query("SELECT * FROM expenses ORDER BY time DESC")
-//    suspend fun getAllExpenses(): List<Expense>
 }

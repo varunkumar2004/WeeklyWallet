@@ -24,17 +24,6 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
 
-//    init {
-//        val expense = Expense(
-//            name = "Netflix",
-//            amount = 1000.toDouble(),
-//            expenseType = ExpenseType.ENTERTAINMENT
-//        )
-//        viewModelScope.launch {
-//            expenseDao.insertExpense(expense)
-//        }
-//    }
-
     val state = combine(_state, dataStoreRepository.dailyLimitFlow) { state, limit ->
         _state.update {
             it.copy(
@@ -50,41 +39,29 @@ class HomeViewModel @Inject constructor(
                 )
             )
         }
-        Log.d("state update", state.toString())
         state
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeState())
 
     var isDailyLimitAlertOpen = MutableStateFlow(false)
         private set
 
-    var isBottomDrawerOpen = MutableStateFlow(false)
-        private set
-
-    var isCalendarAlertOpen = MutableStateFlow(false)
+    var isAddExpenseAlertOpen = MutableStateFlow(false)
         private set
 
     fun openDailyLimitAlert() {
         isDailyLimitAlertOpen.update { true }
     }
 
-    fun openCalendarAlert() {
-        isCalendarAlertOpen.update { true }
-    }
-
     fun openBottomSheet() {
-        isBottomDrawerOpen.update { true }
+        isAddExpenseAlertOpen.update { true }
     }
 
     fun closeDailyLimitAlert() {
         isDailyLimitAlertOpen.update { false }
     }
 
-    fun closeCalenderAlert() {
-        isCalendarAlertOpen.update { false }
-    }
-
     fun closeBottomSheet() {
-        isBottomDrawerOpen.update { false }
+        isAddExpenseAlertOpen.update { false }
     }
 
     fun selectDayItem(newDate: LocalDate) {

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AllInclusive
 import androidx.compose.material.icons.outlined.CurrencyRupee
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.FoodBank
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocalMovies
@@ -33,6 +35,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -53,57 +56,55 @@ import com.varunkumar.expensetracker.data.Expense
 import com.varunkumar.expensetracker.data.ExpenseType
 import com.varunkumar.expensetracker.home.HomeState
 import com.varunkumar.expensetracker.ui.components.extractTimeFromLong
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun DailyExpenseHistoryContainer(
     modifier: Modifier = Modifier,
     homeState: HomeState,
-    openAddExpenseSheet: () -> Unit
+    openAddExpenseSheet: () -> Unit,
+    onDeleteIconButtonClick: (Expense) -> Unit
 ) {
-    val totalAmount = homeState.dateSpecificExpenses.sumOf { it.amount }
+    val isCurrentDate = homeState.selectedDate == LocalDate.now()
 
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(30.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        AnimatedContent(targetState = isCurrentDate, label = "") { showButton ->
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    tint = MaterialTheme.colorScheme.primary,
-                    imageVector = Icons.Outlined.History,
-                    contentDescription = null
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        tint = MaterialTheme.colorScheme.primary,
+                        imageVector = Icons.Outlined.History,
+                        contentDescription = null
+                    )
 
-                Column {
                     Text(
                         text = "History",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge
                     )
-
-                    Text(
-                        text = homeState.selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodySmall
-                    )
                 }
-            }
 
-            Button(onClick = openAddExpenseSheet) {
-                Text(text = "Add Expense")
+                if (showButton) {
+                    Button(onClick = openAddExpenseSheet) {
+                        Text(text = "Add Expense")
+                    }
+                }
             }
         }
 
@@ -113,21 +114,10 @@ fun DailyExpenseHistoryContainer(
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            itemsIndexed(homeState.dateSpecificExpenses) { index, it ->
+            items(homeState.dateSpecificExpenses) { item ->
                 DailyExpenseGridItem(
-                    item = it
-                )
-            }
-
-            item {
-                Text(
-                    modifier = Modifier.padding(bottom = 20.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    text = "Total Expense: $totalAmount",
-                    color =
-                    if (totalAmount < homeState.dailyLimit) MaterialTheme.colorScheme.secondary
-                    else MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
+                    item = item,
+                    onDeleteIconButtonClick = { onDeleteIconButtonClick(item) }
                 )
             }
         }
@@ -137,7 +127,8 @@ fun DailyExpenseHistoryContainer(
 @Composable
 fun DailyExpenseGridItem(
     modifier: Modifier = Modifier,
-    item: Expense
+    item: Expense,
+    onDeleteIconButtonClick: () -> Unit
 ) {
     ListItem(
         modifier = modifier,
@@ -163,25 +154,23 @@ fun DailyExpenseGridItem(
         },
         supportingContent = {
             Text(
-                text = extractTimeFromLong(item.time),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodySmall
+                text = "${item.name} - ${extractTimeFromLong(item.time).lowercase()}",
+                color = MaterialTheme.colorScheme.tertiary,
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         headlineContent = {
             Text(
-                text = item.name,
-                color = MaterialTheme.colorScheme.tertiary,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        },
-        trailingContent = {
-            Text(
-                text = item.amount.toString(),
+                text = "₹ ${item.amount}",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.titleMedium
             )
+        },
+        trailingContent = {
+            IconButton(onClick = onDeleteIconButtonClick) {
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+            }
         }
     )
 

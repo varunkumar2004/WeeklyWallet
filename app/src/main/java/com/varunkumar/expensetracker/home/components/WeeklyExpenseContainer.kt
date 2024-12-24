@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForwardIos
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.RunningWithErrors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,7 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kizitonwose.calendar.compose.WeekCalendar
@@ -32,13 +39,13 @@ import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.kizitonwose.calendar.core.WeekDay
 import com.varunkumar.expensetracker.home.HomeState
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
 fun WeeklyExpenseContainer(
     modifier: Modifier = Modifier,
     homeState: HomeState,
-    onCalendarTextButtonClick: () -> Unit,
     onDailyLimitTextButtonClick: () -> Unit,
     onDayClick: (LocalDate) -> Unit
 ) {
@@ -49,7 +56,11 @@ fun WeeklyExpenseContainer(
     else 0f
 
     val calendarState = rememberWeekCalendarState(
-        startDate = LocalDate.of(currentDate.year, currentDate.month, 1),
+        startDate = LocalDate.of(
+            currentDate.year,
+            currentDate.month,
+            currentDate.dayOfMonth
+        ),
         endDate = LocalDate.of(
             currentDate.year,
             currentDate.month,
@@ -58,60 +69,70 @@ fun WeeklyExpenseContainer(
     )
 
     Column(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(
-                onClick = onCalendarTextButtonClick
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        style = MaterialTheme.typography.bodyLarge,
-                        text = currentDate.month.name.lowercase().capitalize(Locale.ROOT)
-                    )
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 16.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            TextButton(
+//                onClick = onCalendarTextButtonClick
+//            ) {
+//                Row(
+//                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Text(
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        text = currentDate.month.name.lowercase().capitalize(Locale.ROOT)
+//                    )
+//
+//                    Icon(
+//                        modifier = Modifier.size(12.dp),
+//                        imageVector = Icons.Outlined.ArrowForwardIos,
+//                        contentDescription = null
+//                    )
+//                }
+//            }
+//
+//            TextButton(
+//                onClick = onDailyLimitTextButtonClick
+//            ) {
+//                Row(
+//                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Icon(
+//                        modifier = Modifier.size(15.dp),
+//                        imageVector = Icons.Outlined.RunningWithErrors,
+//                        contentDescription = null
+//                    )
+//
+//                    Text(
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        text = homeState.dailyLimit.toString()
+//                    )
+//                }
+//            }
+//        }
 
-                    Icon(
-                        modifier = Modifier.size(12.dp),
-                        imageVector = Icons.Outlined.ArrowForwardIos,
-                        contentDescription = null
-                    )
-                }
-            }
-
-            TextButton(
-                onClick = onDailyLimitTextButtonClick
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        modifier = Modifier.size(15.dp),
-                        imageVector = Icons.Outlined.RunningWithErrors,
-                        contentDescription = null
-                    )
-
-                    Text(
-                        style = MaterialTheme.typography.bodyLarge,
-                        text = homeState.dailyLimit.toString()
-                    )
-                }
-            }
-        }
+        DailyHeadingContainer(
+            modifier = Modifier.fillMaxWidth(),
+            totalExpense = totalExpense.toInt(),
+            dailyLimit = homeState.dailyLimit,
+            selectedDate = homeState.selectedDate,
+            onDailyLimitTextButtonClick = onDailyLimitTextButtonClick
+        )
 
         WeekCalendar(
-            modifier = modifier.fillMaxHeight(),
+            modifier = modifier
+                .fillMaxHeight(),
             state = calendarState,
-            userScrollEnabled = true,
+            userScrollEnabled = false,
             contentPadding = PaddingValues(horizontal = 16.dp),
             dayContent = { weekDay ->
                 val isSelected = homeState.selectedDate == weekDay.date
@@ -144,6 +165,56 @@ fun WeeklyExpenseContainer(
 }
 
 @Composable
+fun DailyHeadingContainer(
+    modifier: Modifier = Modifier,
+    totalExpense: Int,
+    dailyLimit: Int,
+    selectedDate: LocalDate,
+    onDailyLimitTextButtonClick: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val annotatedString = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    fontWeight = MaterialTheme.typography.displayLarge.fontWeight,
+                    fontSize = MaterialTheme.typography.displayLarge.fontSize
+                )
+            ) {
+                append("$totalExpense")
+            }
+
+            withStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize
+                )
+            ) {
+                append(" / $dailyLimit INR")
+            }
+        }
+
+        Text(
+            modifier = Modifier
+                .clickable { onDailyLimitTextButtonClick() },
+            text = annotatedString
+        )
+
+        Text(
+            modifier = modifier,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.tertiary,
+            text = if (selectedDate == LocalDate.now()) "Today"
+            else selectedDate.format(DateTimeFormatter.ofPattern("MMM dd"))
+        )
+    }
+}
+
+@Composable
 fun DailyExpenseItem(
     modifier: Modifier = Modifier,
     itemColor: DailyExpenseItemColor,
@@ -167,7 +238,7 @@ fun DailyExpenseItem(
                 itemColor.dayColor else
                 MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.bodySmall,
-            text = weekDay.date.dayOfMonth.toString()
+            text = weekDay.date.dayOfWeek.name.substring(0..2).lowercase().capitalize(Locale.ROOT)
         )
 
         val expenseModifier = Modifier

@@ -1,7 +1,7 @@
 package com.varunkumar.expensetracker
 
-import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,9 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -26,6 +23,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.varunkumar.expensetracker.biometrics.BiometricUiState
 import com.varunkumar.expensetracker.biometrics.BiometricsScreen
 import com.varunkumar.expensetracker.biometrics.BiometricsViewModel
+import com.varunkumar.expensetracker.biometrics.RequestPermissions
 import com.varunkumar.expensetracker.home.HomeScreen
 import com.varunkumar.expensetracker.ui.components.ContainerView
 import com.varunkumar.expensetracker.ui.components.Routes
@@ -41,7 +39,6 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
 
         // TODO implement notifications permission request
-
         setContent {
             val systemUiController = rememberSystemUiController()
 
@@ -68,6 +65,7 @@ class MainActivity : FragmentActivity() {
                                 inclusive = true
                             }
                         }
+
                         else -> Unit
                     }
                 }
@@ -84,6 +82,23 @@ class MainActivity : FragmentActivity() {
                     ) {
                         composable(Routes.Biometrics.route) {
                             val activity = LocalContext.current as FragmentActivity
+
+                            RequestPermissions(
+                                onPermissionGranted = {
+                                    Toast.makeText(
+                                        activity,
+                                        "Permissions Granted.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                onPermissionDenied = {
+                                    Toast.makeText(
+                                        activity,
+                                        "Permissions denied. Unable to access SMS.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            )
 
                             BiometricsScreen(
                                 modifier = modifier.fillMaxSize(),

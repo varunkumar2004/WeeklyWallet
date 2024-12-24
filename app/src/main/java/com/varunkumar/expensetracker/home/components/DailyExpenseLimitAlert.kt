@@ -10,6 +10,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -45,12 +49,16 @@ fun DailyExpenseLimitAlert(
         modifier = modifier,
         title = {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = "Daily Limit",
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.primary
             )
         },
         text = {
-            Column {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 OutlinedTextField(
                     modifier = modifier,
                     placeholder = { Text(text = "Enter limit") },
@@ -75,7 +83,18 @@ fun DailyExpenseLimitAlert(
                     }
                 )
 
-//                Text(text = "")
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Error,
+                        contentDescription = null
+                    )
+
+                    Text(text = "Please consider before changing this limit " +
+                            "because your past expenses may be affected.")
+                }
             }
         },
         onDismissRequest = onDismissRequest,

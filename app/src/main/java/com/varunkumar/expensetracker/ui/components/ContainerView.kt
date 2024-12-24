@@ -13,6 +13,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,7 +35,7 @@ fun ContainerView(
     Scaffold(
         topBar = {
             if (showScaffoldElements) {
-                CenterAlignedTopAppBar(
+                TopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         titleContentColor = MaterialTheme.colorScheme.tertiary
                     ),
