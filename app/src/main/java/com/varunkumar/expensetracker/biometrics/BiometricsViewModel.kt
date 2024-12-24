@@ -2,6 +2,7 @@ package com.varunkumar.expensetracker.biometrics
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
+import com.varunkumar.expensetracker.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,20 +22,27 @@ class BiometricsViewModel @Inject constructor(
             negativeButtonText = "Cancel",
             fragmentActivity = activity,
             onSuccess = {
-                _state.update { it.copy(uiState = BiometricUiState.Success) }
+                _state.update { it.copy(uiState = UiState.Success()) }
             },
             onFailed = {
                 _state.update {
                     it.copy(
-                        uiState = BiometricUiState.Error,
-                        message = "Wrong biometrics"
+                        uiState = UiState.Error("Wrong biometrics")
                     )
                 }
             },
             onError = { _, error ->
-                _state.update { it.copy(uiState = BiometricUiState.Error, message = error) }
+                _state.update {
+                    it.copy(
+                        uiState = UiState.Error(error)
+                    )
+                }
             }
         )
+    }
+
+    fun updatePermissionsGrantedStatus(isGranted: Boolean) {
+        _state.update { it.copy(isSmsPermissionGranted = isGranted) }
     }
 }
 

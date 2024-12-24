@@ -111,6 +111,9 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+
+    // ml kit for transactions extraction
+    implementation("com.google.mlkit:entity-extraction:16.0.0-beta5")
 }
 
 kapt {

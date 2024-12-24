@@ -20,7 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.varunkumar.expensetracker.biometrics.BiometricUiState
 import com.varunkumar.expensetracker.biometrics.BiometricsScreen
 import com.varunkumar.expensetracker.biometrics.BiometricsViewModel
 import com.varunkumar.expensetracker.biometrics.RequestPermissions
@@ -52,6 +51,7 @@ class MainActivity : FragmentActivity() {
 
             val biometricViewModel = hiltViewModel<BiometricsViewModel>()
             val biometricState by biometricViewModel.state.collectAsState()
+
             val navController = rememberNavController()
             var selectedRoute by remember {
                 mutableStateOf<Routes>(Routes.Biometrics)
@@ -59,14 +59,8 @@ class MainActivity : FragmentActivity() {
 
             LaunchedEffect(selectedRoute) {
                 navController.navigate(selectedRoute.route) {
-                    when (selectedRoute) {
-                        is Routes.Biometrics -> {
-                            popUpTo(Routes.Biometrics.route) {
-                                inclusive = true
-                            }
-                        }
-
-                        else -> Unit
+                    popUpTo(Routes.Biometrics.route) {
+                        inclusive = true
                     }
                 }
             }
@@ -85,11 +79,7 @@ class MainActivity : FragmentActivity() {
 
                             RequestPermissions(
                                 onPermissionGranted = {
-                                    Toast.makeText(
-                                        activity,
-                                        "Permissions Granted.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    biometricViewModel.updatePermissionsGrantedStatus(true)
                                 },
                                 onPermissionDenied = {
                                     Toast.makeText(
@@ -103,12 +93,17 @@ class MainActivity : FragmentActivity() {
                             BiometricsScreen(
                                 modifier = modifier.fillMaxSize(),
                                 message = when (biometricState.uiState) {
-                                    is BiometricUiState.Success -> {
+                                    is UiState.Success -> {
+                                        // consider permission request
                                         selectedRoute = Routes.Home
                                         "Success"
                                     }
 
-                                    else -> biometricState.message
+                                    is UiState.Error -> {
+                                        (biometricState.uiState as UiState.Error).errorMessage
+                                    }
+
+                                    else -> ""
                                 },
                                 biometricRequestClick = {
                                     biometricViewModel.biometricRequest(activity)
