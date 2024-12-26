@@ -114,6 +114,9 @@ dependencies {
 
     // ml kit for transactions extraction
     implementation("com.google.mlkit:entity-extraction:16.0.0-beta5")
+
+    // gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 kapt {

@@ -43,16 +43,6 @@ class MainActivity : FragmentActivity() {
 
         // TODO implement notifications permission request
         setContent {
-            val systemUiController = rememberSystemUiController()
-
-            // always make status bar transparent and icons dark
-            SideEffect {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Transparent,
-                    darkIcons = true
-                )
-            }
-
             val biometricViewModel = hiltViewModel<BiometricsViewModel>()
             val biometricState by biometricViewModel.state.collectAsState()
 

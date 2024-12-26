@@ -1,53 +1,38 @@
 package com.varunkumar.expensetracker.home.components
 
+import android.icu.util.Calendar.WeekData
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.ArrowForwardIos
-import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.RunningWithErrors
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.kizitonwose.calendar.compose.WeekCalendar
 import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
+import com.kizitonwose.calendar.core.Week
 import com.kizitonwose.calendar.core.WeekDay
 import com.varunkumar.expensetracker.home.HomeState
 import java.time.LocalDate
@@ -64,7 +49,6 @@ fun WeeklyExpenseContainer(
     onDayClick: (LocalDate) -> Unit
 ) {
     val currentDate = LocalDate.now()
-
     val totalExpense = if (homeState.dateSpecificExpenses.isNotEmpty())
         homeState.dateSpecificExpenses.sumOf { it.amount }.toFloat()
     else 0f
@@ -79,11 +63,12 @@ fun WeeklyExpenseContainer(
             currentDate.year,
             currentDate.month,
             currentDate.dayOfMonth
-        ),
+        )
     )
 
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         DailyHeadingContainer(
@@ -94,15 +79,13 @@ fun WeeklyExpenseContainer(
         )
 
         Box(
-            modifier = modifier
-                .padding(horizontal = 20.dp),
+            modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
             GraphLinesContainer(
                 modifier = modifier
                     .fillMaxHeight(),
-                lineColor = MaterialTheme.colorScheme.primaryContainer,
-                numberOfLines = 5
+                lineColor = MaterialTheme.colorScheme.secondaryContainer
             )
 
             WeekCalendar(
@@ -123,6 +106,7 @@ fun WeeklyExpenseContainer(
 
                     DailyExpenseItem(
                         modifier = expenseContainerModifier,
+                        isSelected = isSelected,
                         weekDay = weekDay,
                         itemColor = itemColors,
                         expense = if (isSelected) totalExpense
@@ -134,7 +118,7 @@ fun WeeklyExpenseContainer(
             )
         }
 
-        DateContainer(
+        DateCarouselContainer(
             modifier = Modifier
                 .fillMaxWidth(),
             selectedDate = homeState.selectedDate,
@@ -168,15 +152,14 @@ fun DailyHeadingContainer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.titleMedium,
                 text = " / $dailyLimit"
             )
 
             Icon(
-                modifier = Modifier
-                    .size(15.dp),
-                tint = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.size(15.dp),
+                tint = MaterialTheme.colorScheme.secondary,
                 imageVector = Icons.Default.Edit,
                 contentDescription = null
             )
@@ -185,10 +168,10 @@ fun DailyHeadingContainer(
 }
 
 @Composable
-fun GraphLinesContainer(
+private fun GraphLinesContainer(
     modifier: Modifier = Modifier,
     lineColor: Color,
-    numberOfLines: Int
+    numberOfLines: Int = 5
 ) {
     Canvas(
         modifier = modifier
@@ -207,7 +190,7 @@ fun GraphLinesContainer(
 }
 
 @Composable
-fun DateContainer(
+private fun DateCarouselContainer(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     currentDate: LocalDate,
@@ -231,14 +214,14 @@ fun DateContainer(
                 Icon(
                     modifier = iconModifier,
                     imageVector = Icons.Default.ArrowBackIosNew,
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    tint = MaterialTheme.colorScheme.secondary,
                     contentDescription = null
                 )
             }
 
             Text(
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.primary,
                 text = if (selectedDate == currentDate) "Today"
                 else selectedDate.format(DateTimeFormatter.ofPattern("MMM dd"))
             )
@@ -250,7 +233,7 @@ fun DateContainer(
                 Icon(
                     modifier = iconModifier,
                     imageVector = Icons.Default.ArrowForwardIos,
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    tint = MaterialTheme.colorScheme.secondary,
                     contentDescription = null
                 )
             }
@@ -259,8 +242,9 @@ fun DateContainer(
 }
 
 @Composable
-fun DailyExpenseItem(
+private fun DailyExpenseItem(
     modifier: Modifier = Modifier,
+    isSelected: Boolean,
     itemColor: DailyExpenseItemColor,
     weekDay: WeekDay,
     expense: Float,
@@ -276,7 +260,7 @@ fun DailyExpenseItem(
         .clickable { onClick() }
         .background(
             if (expenseHeight >= 1f) MaterialTheme.colorScheme.error
-            else itemColor.expenseItemColor
+            else itemColor.itemColor
         )
 
     Column(
@@ -287,36 +271,42 @@ fun DailyExpenseItem(
         Text(
             color = itemColor.dayColor,
             style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             text = weekDay.date.dayOfWeek.name
                 .substring(0..2).lowercase().capitalize(Locale.ROOT)
         )
 
         Box(
-            modifier = expenseModifier
-        )
+            modifier = Modifier
+                .padding(horizontal = 5.dp)
+                .fillMaxHeight()
+                .weight(1f),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Box(
+                modifier = expenseModifier
+            )
+        }
     }
 }
 
 data class DailyExpenseItemColor(
-    val backgroundColor: Color,
     val dayColor: Color,
-    val expenseItemColor: Color
+    val itemColor: Color
 )
 
 @Composable
 fun selectedDailyExpenseItem(): DailyExpenseItemColor {
     return DailyExpenseItemColor(
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-        dayColor = MaterialTheme.colorScheme.primary, // take care of the contrast of background,
-        expenseItemColor = MaterialTheme.colorScheme.onSecondaryContainer
+        dayColor = MaterialTheme.colorScheme.tertiary,
+        itemColor = MaterialTheme.colorScheme.tertiary
     )
 }
 
 @Composable
 fun unSelectedDailyExpenseItem(): DailyExpenseItemColor {
     return DailyExpenseItemColor(
-        backgroundColor = MaterialTheme.colorScheme.onPrimary,
-        dayColor = MaterialTheme.colorScheme.tertiary,
-        expenseItemColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+        dayColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+        itemColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
     )
 }

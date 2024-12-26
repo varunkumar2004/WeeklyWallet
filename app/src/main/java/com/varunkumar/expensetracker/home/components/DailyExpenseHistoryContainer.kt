@@ -66,14 +66,12 @@ fun DailyExpenseHistoryContainer(
     openAddExpenseSheet: () -> Unit,
     onDeleteIconButtonClick: (Expense) -> Unit
 ) {
-    val isCurrentDate = homeState.selectedDate == LocalDate.now()
-
     Column(
         modifier = modifier
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
     ) {
-        AnimatedContent(targetState = isCurrentDate, label = "") { showButton ->
+        AnimatedVisibility(visible = homeState.dateSpecificExpenses.isNotEmpty()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,25 +98,28 @@ fun DailyExpenseHistoryContainer(
                     )
                 }
 
-                if (showButton) {
-                    Button(onClick = openAddExpenseSheet) {
-                        Text(text = "Add Expense")
-                    }
+                Button(onClick = openAddExpenseSheet) {
+                    Text(text = "Add Expense")
                 }
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(homeState.dateSpecificExpenses) { item ->
-                DailyExpenseGridItem(
-                    item = item,
-                    onDeleteIconButtonClick = { onDeleteIconButtonClick(item) }
-                )
+        AnimatedContent(
+            targetState = homeState.dateSpecificExpenses,
+            label = ""
+        ) { expenses ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(expenses) { item ->
+                    DailyExpenseGridItem(
+                        item = item,
+                        onDeleteIconButtonClick = { onDeleteIconButtonClick(item) }
+                    )
+                }
             }
         }
     }
@@ -144,7 +145,7 @@ fun DailyExpenseGridItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    modifier = Modifier.size(15.dp),
+                    modifier = Modifier.size(18.dp),
                     imageVector = item.expenseType.icon,
                     tint = MaterialTheme.colorScheme.onTertiary,
                     contentDescription = null
@@ -155,7 +156,7 @@ fun DailyExpenseGridItem(
         supportingContent = {
             Text(
                 text = "${item.name} - ${extractTimeFromLong(item.time).lowercase()}",
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.bodyMedium
             )
         },
@@ -163,13 +164,17 @@ fun DailyExpenseGridItem(
             Text(
                 text = "₹ ${item.amount}",
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             )
         },
         trailingContent = {
             IconButton(onClick = onDeleteIconButtonClick) {
-                Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+                Icon(
+                    tint = MaterialTheme.colorScheme.secondary,
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null
+                )
             }
         }
     )

@@ -3,11 +3,13 @@ package com.varunkumar.expensetracker.sms
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.ColorSpace.Model
 import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
 import com.google.ai.client.generativeai.Chat
+import com.google.gson.Gson
 import com.google.mlkit.nl.entityextraction.Entity
 import com.google.mlkit.nl.entityextraction.EntityExtraction
 import com.google.mlkit.nl.entityextraction.EntityExtractionParams
@@ -15,28 +17,68 @@ import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import com.google.mlkit.nl.entityextraction.MoneyEntity
 import com.varunkumar.expensetracker.data.Expense
 import com.varunkumar.expensetracker.data.ExpenseType
+import com.varunkumar.expensetracker.di.SmsReceiverEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
+import kotlin.math.log
 
-class SmsReceiver : BroadcastReceiver() {
+class SmsReceiver: BroadcastReceiver() {
+    private lateinit var chat: Chat
+    private val gson = Gson()
+
     override fun onReceive(context: Context, intent: Intent) {
         if (Telephony.Sms.Intents.SMS_RECEIVED_ACTION == intent.action) {
             val bundle: Bundle? = intent.extras
             val format = bundle?.getString("format")
             val pdus = bundle?.get("pdus") as Array<*>?
 
+            val entryPoint = EntryPointAccessors.fromApplication(
+                context.applicationContext,
+                SmsReceiverEntryPoint::class.java
+            )
+
+            chat = entryPoint.chat()
+
             pdus?.forEach { pdu ->
                 val message = SmsMessage.createFromPdu(pdu as ByteArray, format)
                 val messageBody = message.messageBody
-                val sender = message.originatingAddress
 
-                // Parse the SMS body for transaction details
-                extractEntitiesFromSms(
-                    messageBody = messageBody,
-                    onEntitiesExtracted = {
-                        Log.d("extract info", "onReceive: $it")
-                    }
-                )
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    genModelOutput(
+//                        input = messageBody,
+//                        onOutput = {
+//                            Log.d("Gen ai model result", "onReceive: $it")
+//                        }
+//                    )
+//                }
             }
+        }
+    }
+
+    private suspend fun genModelOutput(
+        input: String,
+        onOutput: (Expense?) -> Unit
+    ) {
+        val ans = chat.sendMessage(input)
+
+        try {
+            Log.d("TAG 12", "genModelOutput: ${ans.text}")
+//            val result = gson.fromJson(ans.text, ModelExpenseResult::class.java)
+//
+//            val expense = Expense(
+//                name = result.name,
+//                amount = result.amount,
+//                expenseType = ExpenseType.valueOf(result.expenseType)
+//            )
+            onOutput(null)
+        } catch (e: Exception) {
+            Log.d("Error in genModelOutput", "genModelOutput: ${e.localizedMessage}")
+            onOutput(null)
         }
     }
 

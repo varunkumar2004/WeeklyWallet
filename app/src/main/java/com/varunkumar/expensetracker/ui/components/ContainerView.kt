@@ -37,7 +37,7 @@ fun ContainerView(
             if (showScaffoldElements) {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        titleContentColor = MaterialTheme.colorScheme.tertiary
+                        titleContentColor = MaterialTheme.colorScheme.secondary
                     ),
                     title = { Text(text = route.route.capitalize(Locale.ROOT)) }
                 )
