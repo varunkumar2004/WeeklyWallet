@@ -1,5 +1,6 @@
 package com.varunkumar.expensetracker
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -14,6 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -53,6 +57,7 @@ class MainActivity : FragmentActivity() {
             val biometricState by biometricViewModel.state.collectAsState()
 
             val navController = rememberNavController()
+
             var selectedRoute by remember {
                 mutableStateOf<Routes>(Routes.Biometrics)
             }

@@ -3,6 +3,7 @@ package com.varunkumar.expensetracker.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.ai.client.generativeai.Chat
 import com.varunkumar.expensetracker.DataStoreRepository
 import com.varunkumar.expensetracker.UiState
 import com.varunkumar.expensetracker.data.Expense
@@ -76,7 +77,6 @@ class HomeViewModel @Inject constructor(
             closeDailyLimitAlert()
         }
     }
-
 
     // room database operations
     fun addExpense(expense: Expense) {

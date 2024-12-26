@@ -1,6 +1,7 @@
 package com.varunkumar.expensetracker.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import com.varunkumar.expensetracker.home.components.AddExpenseAlert
 import com.varunkumar.expensetracker.home.components.DailyExpenseHistoryContainer
 import com.varunkumar.expensetracker.home.components.DailyExpenseLimitAlert
 import com.varunkumar.expensetracker.home.components.WeeklyExpenseContainer
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +73,8 @@ fun HomeScreen(
         WeeklyExpenseContainer(
             modifier = weightModifier,
             homeState = state,
+            onDateBackButtonClick = { homeViewModel.selectDayItem(state.selectedDate.minusDays(1)) },
+            onDateNextButtonClick = { homeViewModel.selectDayItem(state.selectedDate.plusDays(1)) },
             onDailyLimitTextButtonClick = homeViewModel::openDailyLimitAlert,
             onDayClick = homeViewModel::selectDayItem
         )

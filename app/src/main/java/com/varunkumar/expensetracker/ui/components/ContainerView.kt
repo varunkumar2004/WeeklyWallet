@@ -35,7 +35,7 @@ fun ContainerView(
     Scaffold(
         topBar = {
             if (showScaffoldElements) {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         titleContentColor = MaterialTheme.colorScheme.tertiary
                     ),

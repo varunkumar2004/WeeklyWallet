@@ -16,6 +16,9 @@ class BiometricsViewModel @Inject constructor(
     private val _state = MutableStateFlow(BiometricState())
     val state = _state.asStateFlow()
 
+    var showPermissionsAlert = MutableStateFlow(false)
+        private set
+
     fun biometricRequest(activity: FragmentActivity) {
         biometricAuthentication.promptBiometricAuth(
             title = "Use your biometrics",
