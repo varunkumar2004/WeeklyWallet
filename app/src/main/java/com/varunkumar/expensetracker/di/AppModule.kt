@@ -7,11 +7,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.google.ai.client.generativeai.Chat
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.RequestOptions
 import com.google.ai.client.generativeai.type.content
 import com.google.ai.client.generativeai.type.generationConfig
 import com.varunkumar.expensetracker.BuildConfig
-import com.varunkumar.expensetracker.DataStoreRepository
+import com.varunkumar.expensetracker.data.DataStoreRepository
 import com.varunkumar.expensetracker.biometrics.BiometricAuthentication
 import com.varunkumar.expensetracker.data.dao.ExpenseDao
 import com.varunkumar.expensetracker.data.database.ExpenseDatabase
@@ -19,7 +18,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -98,11 +96,5 @@ class AppModule {
         )
 
         return model.startChat(chatHistory)
-    }
-
-    @Provides
-    @Singleton
-    fun provideBiometricAuthenticator(@ApplicationContext context: Context): BiometricAuthentication {
-        return BiometricAuthentication(context)
     }
 }

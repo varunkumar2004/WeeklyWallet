@@ -1,6 +1,5 @@
 package com.varunkumar.expensetracker.home.components
 
-import android.icu.util.Calendar.WeekData
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,13 +27,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.WeekCalendar
 import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
-import com.kizitonwose.calendar.core.Week
 import com.kizitonwose.calendar.core.WeekDay
 import com.varunkumar.expensetracker.home.HomeState
+import com.varunkumar.expensetracker.ui.components.isFirstDateOfCurrentWeek
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -54,6 +53,7 @@ fun WeeklyExpenseContainer(
     else 0f
 
     val calendarState = rememberWeekCalendarState(
+        firstDayOfWeek = DayOfWeek.MONDAY,
         startDate = LocalDate.of(
             currentDate.year,
             currentDate.month,
@@ -84,8 +84,7 @@ fun WeeklyExpenseContainer(
         ) {
             GraphLinesContainer(
                 modifier = modifier
-                    .fillMaxHeight(),
-                lineColor = MaterialTheme.colorScheme.secondaryContainer
+                    .fillMaxHeight()
             )
 
             WeekCalendar(
@@ -130,7 +129,7 @@ fun WeeklyExpenseContainer(
 }
 
 @Composable
-fun DailyHeadingContainer(
+private fun DailyHeadingContainer(
     modifier: Modifier = Modifier,
     totalExpense: Int,
     dailyLimit: Int,
@@ -170,8 +169,8 @@ fun DailyHeadingContainer(
 @Composable
 private fun GraphLinesContainer(
     modifier: Modifier = Modifier,
-    lineColor: Color,
-    numberOfLines: Int = 5
+    lineColor: Color = MaterialTheme.colorScheme.onPrimary,
+    numberOfLines: Int = 4
 ) {
     Canvas(
         modifier = modifier
@@ -209,6 +208,10 @@ private fun DateCarouselContainer(
                 .size(15.dp)
 
             IconButton(
+                enabled = !isFirstDateOfCurrentWeek(
+                    currentDate = currentDate,
+                    selectedDate = selectedDate
+                ),
                 onClick = backButtonClick
             ) {
                 Icon(
@@ -223,7 +226,9 @@ private fun DateCarouselContainer(
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 text = if (selectedDate == currentDate) "Today"
-                else selectedDate.format(DateTimeFormatter.ofPattern("MMM dd"))
+                else "${
+                    selectedDate.dayOfWeek.name.lowercase().capitalize(Locale.ROOT)
+                }, ${selectedDate.format(DateTimeFormatter.ofPattern("MMM dd"))}"
             )
 
             IconButton(
@@ -307,6 +312,6 @@ fun selectedDailyExpenseItem(): DailyExpenseItemColor {
 fun unSelectedDailyExpenseItem(): DailyExpenseItemColor {
     return DailyExpenseItemColor(
         dayColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-        itemColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+        itemColor = MaterialTheme.colorScheme.primaryContainer
     )
 }

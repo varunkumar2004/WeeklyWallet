@@ -1,9 +1,12 @@
 package com.varunkumar.expensetracker.home.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,10 +41,10 @@ import androidx.compose.ui.unit.sp
 import com.varunkumar.expensetracker.data.ExpenseType
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseAlert(
     modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
     onConfirmClick: (String, Double, ExpenseType) -> Unit
 ) {
     var showExpenseTypeOptions by remember { mutableStateOf(false) }
@@ -56,12 +60,13 @@ fun AddExpenseAlert(
 
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = onDismissRequest,
         title = {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 text = "Add Expense",
+                color = MaterialTheme.colorScheme.primary
             )
         },
         text = {
@@ -115,28 +120,15 @@ fun AddExpenseAlert(
                         onDismissRequest = { showExpenseTypeOptions = false }
                     ) {
                         ExpenseType.entries.forEach { type ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            modifier = Modifier.size(20.dp),
-                                            imageVector = type.icon,
-                                            tint = MaterialTheme.colorScheme.tertiary,
-                                            contentDescription = null
-                                        )
-
-                                        Text(
-                                            text = type.name.lowercase().capitalize(Locale.ROOT)
-                                        )
+                            Text(
+                                modifier = Modifier
+                                    .clickable {
+                                        expenseType = type
+                                        showExpenseTypeOptions = false
                                     }
-                                },
-                                onClick = {
-                                    expenseType = type
-                                    showExpenseTypeOptions = false
-                                }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                text = type.name,
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         }
                     }
@@ -149,7 +141,7 @@ fun AddExpenseAlert(
                             Icon(
                                 modifier = Modifier.size(20.dp),
                                 imageVector = expenseType.icon,
-                                tint = MaterialTheme.colorScheme.tertiary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 contentDescription = null
                             )
 

@@ -1,4 +1,4 @@
-package com.varunkumar.expensetracker
+package com.varunkumar.expensetracker.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

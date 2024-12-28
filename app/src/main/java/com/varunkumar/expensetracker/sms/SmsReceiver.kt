@@ -24,12 +24,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import kotlin.math.log
 
-class SmsReceiver: BroadcastReceiver() {
+class SmsReceiver : BroadcastReceiver() {
     private lateinit var chat: Chat
     private val gson = Gson()
+    private val chatMutex = Mutex()
 
     override fun onReceive(context: Context, intent: Intent) {
         if (Telephony.Sms.Intents.SMS_RECEIVED_ACTION == intent.action) {
@@ -49,36 +52,27 @@ class SmsReceiver: BroadcastReceiver() {
                 val messageBody = message.messageBody
 
 //                CoroutineScope(Dispatchers.IO).launch {
-//                    genModelOutput(
-//                        input = messageBody,
-//                        onOutput = {
-//                            Log.d("Gen ai model result", "onReceive: $it")
-//                        }
-//                    )
+//                    chatMutex.withLock {
+//                        val result = genModelOutput(input = messageBody)
+//                        Log.d("Gen ai model result", "onReceive: $result")
+//                    }
 //                }
             }
         }
     }
 
-    private suspend fun genModelOutput(
-        input: String,
-        onOutput: (Expense?) -> Unit
-    ) {
-        val ans = chat.sendMessage(input)
-
+    private suspend fun genModelOutput(input: String): String? {
         try {
-            Log.d("TAG 12", "genModelOutput: ${ans.text}")
-//            val result = gson.fromJson(ans.text, ModelExpenseResult::class.java)
-//
-//            val expense = Expense(
-//                name = result.name,
-//                amount = result.amount,
-//                expenseType = ExpenseType.valueOf(result.expenseType)
-//            )
-            onOutput(null)
+            val ans = chat.sendMessage(input)
+
+            ans.text?.let { message ->
+                val messageBodyLength = message.length
+                return message.substring(7..messageBodyLength - 5)
+            } ?: return null
+
         } catch (e: Exception) {
-            Log.d("Error in genModelOutput", "genModelOutput: ${e.localizedMessage}")
-            onOutput(null)
+            Log.e("SmsReceiver", "Error sending message to chat: ${e.message}")
+            return null
         }
     }
 
