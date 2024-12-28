@@ -11,18 +11,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BiometricsViewModel @Inject constructor(
-    private val biometricAuthentication: BiometricAuthentication,
-//    fragmentActivity: FragmentActivity
+    private val biometricAuthentication: BiometricAuthentication
 ) : ViewModel() {
     private val _state = MutableStateFlow(BiometricState())
     val state = _state.asStateFlow()
 
     var showPermissionsAlert = MutableStateFlow(false)
         private set
-//
-//    init {
-//        biometricRequest(fragmentActivity)
-//    }
 
     fun biometricRequest(activity: FragmentActivity) {
         biometricAuthentication.promptBiometricAuth(

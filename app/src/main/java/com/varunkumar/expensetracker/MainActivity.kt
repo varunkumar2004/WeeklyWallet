@@ -37,71 +37,85 @@ class MainActivity : FragmentActivity() {
         // TODO implement notifications permission request
         setContent {
             val biometricViewModel = hiltViewModel<BiometricsViewModel>()
-            val biometricState by biometricViewModel.state.collectAsState()
-
+            val activity = LocalContext.current as FragmentActivity
             val navController = rememberNavController()
 
-            var selectedRoute by remember {
-                mutableStateOf<Routes>(Routes.Biometrics)
+            var selectedRoute by remember { mutableStateOf<Routes>(Routes.Home) }
+
+            LaunchedEffect(Unit) {
+                biometricViewModel.biometricRequest(activity)
             }
 
-            LaunchedEffect(selectedRoute) {
-                navController.navigate(selectedRoute.route) {
-                    popUpTo(Routes.Biometrics.route) {
-                        inclusive = true
-                    }
-                }
-            }
+//            LaunchedEffect(selectedRoute) {
+//                navController.navigate(selectedRoute.route) {
+//                    popUpTo(Routes.Biometrics.route) {
+//                        inclusive = true
+//                    }
+//                }
+//            }
 
             ExpenseTrackerTheme {
+                RequestPermissions(
+                    onPermissionGranted = {
+                        biometricViewModel.updatePermissionsGrantedStatus(true)
+                    },
+                    onPermissionDenied = {
+                        Toast.makeText(
+                            activity,
+                            "Permissions denied. Unable to access SMS.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
+
                 ContainerView(
                     route = selectedRoute,
                     onIconRouteClick = { selectedRoute = it }
                 ) { modifier ->
                     NavHost(
                         navController = navController,
-                        startDestination = Routes.Biometrics.route
+                        startDestination = Routes.Home.route
                     ) {
-                        composable(Routes.Biometrics.route) {
-                            val activity = LocalContext.current as FragmentActivity
-
-                            RequestPermissions(
-                                onPermissionGranted = {
-                                    biometricViewModel.updatePermissionsGrantedStatus(true)
-                                },
-                                onPermissionDenied = {
-                                    Toast.makeText(
-                                        activity,
-                                        "Permissions denied. Unable to access SMS.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            )
-
-                            BiometricsScreen(
-                                modifier = modifier.fillMaxSize(),
-                                message = when (biometricState.uiState) {
-                                    is UiState.Success -> {
-                                        // consider permission request
-                                        selectedRoute = Routes.Home
-                                        "Success"
-                                    }
-
-                                    is UiState.Error -> {
-                                        (biometricState.uiState as UiState.Error).errorMessage
-                                    }
-
-                                    else -> ""
-                                },
-                                biometricRequestClick = {
-                                    biometricViewModel.biometricRequest(activity)
-                                }
-                            )
-                        }
+//                        composable(Routes.Biometrics.route) {
+//                            BiometricsScreen(
+//                                modifier = modifier.fillMaxSize(),
+//                                message = when (biometricState.uiState) {
+//                                    is UiState.Success -> {
+//                                        // consider permission request
+//                                        selectedRoute = Routes.Home
+//                                        "Success"
+//                                    }
+//
+//                                    is UiState.Error -> {
+//                                        (biometricState.uiState as UiState.Error).errorMessage
+//                                    }
+//
+//                                    else -> ""
+//                                },
+//                                biometricRequestClick = {
+//                                    biometricViewModel.biometricRequest(activity)
+//                                }
+//                            )
+//                        }
 
                         composable(Routes.Home.route) {
+                            val biometricState by biometricViewModel.state.collectAsState()
+
                             HomeScreen(
-                                modifier = modifier.fillMaxSize()
+                                modifier = modifier.fillMaxSize(),
+                                onBiometricRequestClick = {
+                                    biometricViewModel.biometricRequest(
+                                        activity
+                                    )
+                                },
+                                isBiometricSuccess = when (biometricState.uiState) {
+                                    is UiState.Success -> {
+                                        selectedRoute = Routes.Home
+                                        true
+                                    }
+
+                                    else -> false
+                                }
                             )
                         }
 
